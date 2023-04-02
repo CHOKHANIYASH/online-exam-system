@@ -1,7 +1,7 @@
 var express = require('express')
   , router = express.Router()
   , Faculty = require('../models/faculty')
-  , Course = require('../models/course');
+
 
 var default_faculty = {
 	  username: "Your LDAP ID",
@@ -13,9 +13,7 @@ var default_username = "User Name";
 
 var default_courseid = "Course Code";
 
-
-
-router.get('/home', isLoggedInAsFaculty, function(req, res) {
+router.get('/home', function(req, res) {
 	res.render('faculties/home', { title: 'Faculty Home Page', faculty: default_faculty});
 });
 
@@ -219,7 +217,7 @@ module.exports = router;
 function isLoggedIn(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='admin')
+    if (req.isAuthenticated()&&req.session.usertype=='admin')
         {return next();}
 
     // if they aren't redirect them to the home page
@@ -229,7 +227,7 @@ function isLoggedIn(req, res, next) {
 function isLoggedInAsFaculty(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='faculty')
+    if (req.isAuthenticated()&&req.session.usertype=='faculty')
         {return next();}
 
     // if they aren't redirect them to the home page

@@ -4,12 +4,16 @@ let path = require('path');
 let favicon = require('serve-favicon');
 let passport = require('passport');
 let flash    = require('connect-flash');
+let MongoStore  = require('connect-mongo');
 let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 let session = require('express-session');
 
 
+mongoose.connect('mongodb://127.0.0.1:27017/examDB').then(()=>{
+  console.log('Database connected');
+})
 require('./config/passport')(passport);
 // import express from 'express'
 // import mongoose from 'mongoose'
@@ -24,23 +28,31 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
-app.use(session({secret: 'my_app_secret'}));
+//session setup
+const store = new MongoStore({
+  mongoUrl:'mongodb://127.0.0.1:27017/examDB',
+  secret:"gergerrfewwe",
+  touchAfter:24*3600,
+})
+app.use(session({
+  resave:false,
+  saveUninitialized: false,
+  secret: 'my_app_secret',
+  store}));
+
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-let monk = require('monk');
-let db = monk('localhost:2701/examdb');
+// let monk = require('monk');
+// let db = monk('localhost:2701/examdb');
 
-mongoose.connect('mongodb://localhost:27017/practice').then(()=>{
-  console.log('Database connected');
-})
 
 let index = require('./controllers/index');
 let students = require('./controllers/students');
-let courses = require('./controllers/courses');
 let faculties = require('./controllers/faculties');
 let make_exam = require('./controllers/make_exam_controller');
 let take_exam = require('./controllers/take_exam_controller');
@@ -49,7 +61,6 @@ let login = require('./controllers/login_controller');
 
 app.use('/',index);
 app.use('/students', students);
-app.use('/courses', courses);
 app.use('/faculties', faculties);
 app.use('/make_exam', make_exam);
 app.use('/take_exam', take_exam);
@@ -87,5 +98,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
+app.listen('3000',()=> console.log("serving at port 3000"))
 
 module.exports = app;

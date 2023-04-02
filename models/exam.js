@@ -1,14 +1,33 @@
-var express = require('express');
-var router = express.Router();
 
-var monk = require('monk');
-var db = monk('localhost:27017/examdb');
-var exam_collection = db.get('exams');
-var student_collection = db.get('students');
-var response_collection = db.get('responses');
+var student = require('../models/student')
+var mongoose = require('mongoose');
+var responseSchema = new mongoose.Schema({
+  username:String,
+  exam_code:String,
+  
+})
+const response = mongoose.model('response',responseSchema)
+var examSchema = new mongoose.Schema({
+  examName:String,
+  examCode:String,
+  durationHours: Number,
+	durationMinutes: Number,
+  questionList:[{  question:String,
+    optionA:String,
+    optionB:String,
+    optionC:String,
+    optionD:String,
+    key:String,
+    // response:String
+}]
 
+});
+const exam = mongoose.model('exam',examSchema)
 
-module.exports = {
+module.exports = {exam,response}
+
+/*
+{
 // MAKE VALIDATION FUNCTIONS HERE
 // Create new student in the database
 create: function(exam, cb) {
@@ -52,4 +71,4 @@ checkResponse: function(username, exam_code, cb) {
   response_collection.findOne({username:username, exam_code: exam_code}, cb);
 }
 
-};
+};*/

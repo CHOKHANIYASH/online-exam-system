@@ -1,10 +1,9 @@
-var express = require('express')
+const express = require('express')
   , router = express.Router()
-  , Exam = require('../models/exam')
-  , Course = require('../models/student')
-  , Faculty = require('../models/faculty')
+  , {exam,response} = require('../models/exam')
+  , course = require('../models/student')
 
-router.get('/new', isLoggedInAsFaculty, function(req, res) {
+router.get('/new', isLoggedInAsAdmin, function(req, res) {
 	var default_exam = {
 	  exam_name: "Exam Name",
 	  exam_code: "Exam Code",
@@ -17,59 +16,37 @@ router.get('/new', isLoggedInAsFaculty, function(req, res) {
 });
 
 
-router.post('/create', isLoggedInAsFaculty, function(req, res) {
-	var exam = {
-	  exam_name: req.body.exam_name,
-	  exam_code: req.body.exam_code,
-	  duration_hours: req.body.duration_hours,
-	  duration_minutes: req.body.duration_minutes,
-	  course_code: req.body.course_code,
-	  faculty_username: req.user.username
+router.post('/create', isLoggedInAsAdmin,async function(req, res) {
+	var examData = {
+	  examName: req.body.exam_name,
+	  examCode: req.body.exam_code,
+	  durationHours: req.body.duration_hours,
+	  durationMinutes: req.body.duration_minutes,
 	};
-	var exam_code =  req.body.exam_code;
-	var course_code =  req.body.course_code;
-	var faculty_username =  req.user.username;
-	Exam.getByExamCode(exam_code, function(err,doc) 
-	{
-		if(err)
-			res.send("Some error occured");
-		else if(doc)
+	var examCode =  req.body.exam_code;
+	const doc =await exam.findOne({examCode})
+	console.log(doc)
+		if(doc)
 			{res.redirect('/make_exam/new');}
 		else
-		{
-			Faculty.getBycourseid(faculty_username, course_code, function(err, doc) 
-					{
-						if(err)
-							res.send("Some error occured");
-						else if(doc)
-						{
-							Exam.create(exam, function(err, doc)
-							{
-								if(err)
-									res.send("Some error occured");
-								else if(doc)
-									{res.render('exams/question_list', {exam:exam})};
-
-							})	
-						}	
-						else	
-						{res.redirect('/make_exam/new');}					
-					})					
+		{	
+			const newExam = new exam(examData)
+			await newExam.save()	
+			res.render('exams/question_list', {exam:examData})
 		}
-
 	})
+
+router.get('/question_list', isLoggedInAsAdmin, function(req, res) {
+	const examData = exam.findOne({examCode:req.body.exam_code})
+    // Exam.getByExamCode(req.body.exam_code, function(err,docs){
+    //     if(err)
+    //     res.send("some error occured");
+    //     else
+        res.render('exams/question_list', {exam: examData});
+    // });
 });
 
-router.get('/question_list', isLoggedInAsFaculty, function(req, res) {
-    Exam.getByExamCode(req.body.exam_code, function(err,docs){
-        if(err)
-        res.send("some error occured");
-        else
-        res.render('exams/question_list', {exam: docs});
-    });
-});
-
-router.get('/add_question', isLoggedInAsFaculty, function(req,res) {
+router.get('/add_question', isLoggedInAsAdmin, function(req,res) {
 	var exam_code = req.body.exam_code;
 	var default_question_full = {
 	  question: "Question",
@@ -83,7 +60,7 @@ router.get('/add_question', isLoggedInAsFaculty, function(req,res) {
 	exam_code: exam_code});
 });
 
-router.post('/add_question', isLoggedInAsFaculty, function(req,res) {
+router.post('/add_question', isLoggedInAsAdmin, function(req,res) {
 	var exam_code = req.body.exam_code;
 	var default_question_full = {
 	  question: "Question",
@@ -100,7 +77,7 @@ router.post('/add_question', isLoggedInAsFaculty, function(req,res) {
 
 
 
-router.post('/create_question', isLoggedInAsFaculty, function(req, res) {
+router.post('/create_question', isLoggedInAsAdmin,async function(req, res) {
    
     var question_full = {
 	  question: req.body.question,
@@ -111,44 +88,44 @@ router.post('/create_question', isLoggedInAsFaculty, function(req, res) {
 	  key: req.body.key
 	};
     
-    var exam_code = req.body.exam_code;
-    
-    Exam.addQuestion(exam_code, question_full, function(err,docs){
-        if(err)
-        res.send("some error occured");
-        else
-        {
-        	Exam.getByExamCode(exam_code, function(err,docs){
-        	if(err)
-        	res.send("some error occured");
-        	else
-        	res.render('exams/question_list', {exam: docs});
-    		});	}
-    });
+    var examCode = req.body.exam_code;
+	const examData = await exam.findOneAndUpdate({examCode},{ $push: { questionList: { $each: [ 
+		{question: question_full.question,
+		optionA: question_full.optionA,
+		optionB: question_full.optionB,
+		optionC: question_full.optionC,
+		optionD: question_full.optionD,
+		key: question_full.key
+	   } ] } } },{
+			returnOriginal: true
+	  })
+	  console.log(await examData)
+        	res.render('exams/question_list', {exam:examData});
+
 });
 
 
-router.get('/submit', isLoggedInAsFaculty, function(req, res) {
+router.get('/submit', isLoggedInAsAdmin, function(req, res) {
    res.send("exam successfully created"); 
 });
 
-router.get('/list', isLoggedInAsFaculty, function(req, res) {
-    Exam.getByExamCode(req.query.exam_code, function(err,docs){
-        if(err)
-        res.send("some error occured");
-        else
-        res.json(docs);
-    });
+router.get('/list', isLoggedInAsAdmin,async function(req, res) {
+    const examData = await exam.findOne({examCode:req.query.exam_code})
+    // Exam.getByExamCode(req.query.exam_code, function(err,docs){
+    //     if(err)
+    //     res.send("some error occured");
+    //     else
+        res.json(examData);
 });
 
 
 
 module.exports = router;
 
-function isLoggedInAsFaculty(req, res, next) {
+function isLoggedInAsAdmin(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='faculty')
+    if (req.isAuthenticated()&&req.session.usertype=='admin')
         {return next();}
 
     // if they aren't redirect them to the home page

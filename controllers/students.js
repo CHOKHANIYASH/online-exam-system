@@ -1,9 +1,10 @@
 var express = require('express')
   , router = express.Router()
-  , Student = require('../models/student')
-  , Course = require('../models/course');
+  
+const student = require('../models/student')
 
 var default_username = "User Name";
+// let student = Student.student
 
 var default_student = {
 	  username: "Your LDAP ID",
@@ -22,8 +23,10 @@ router.get('/home', isLoggedInAsStudent, function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
-        req.logout();
-        res.redirect('/');
+        req.logout(()=>{
+			res.redirect('/')
+		  });
+        
 });
 	
 router.get('/new', isLoggedIn, function(req, res) {
@@ -31,30 +34,22 @@ router.get('/new', isLoggedIn, function(req, res) {
 });
 
 
-router.post('/create', isLoggedIn, function(req, res) {
+router.post('/create', isLoggedIn,async function(req, res) {
 	// TO DO: Ensure that the student and course exists
 	// TO DO: Add failure cases
-	var student = {
-	username: req.body.username,
-	password: req.body.password,
-	name: req.body.name,
-	rollno: req.body.rollno
-	};
-	var username = req.body.username;
-
-	Student.getByUserName(username, function(err,doc) {
-	if(err)
-		res.send("Some error occured");
-	else if(doc)
+	const username= req.body.username
+	const password=req.body.password
+	const name= req.body.name
+	const rollno= req.body.rollno
+	const data = await student.findOne({username})
+	console.log(data);
+	if(data)
 		res.redirect('/students/new');
 		else{
-		Student.create(student, function(err, doc) {
-			if(err)
-				res.send("Some error occured");
-			else
-				res.redirect('/admin/home');
-		})	}
-	})
+			const newStudent = new student({username,name,rollno})
+			await student.register(newStudent,password)
+			res.redirect('/admin/home');
+		}
 });
 
 router.get('/get_username_edit', isLoggedIn, function(req, res) {
@@ -62,39 +57,36 @@ router.get('/get_username_edit', isLoggedIn, function(req, res) {
 });
 
 
-router.get('/edit', isLoggedIn, function(req,res) {
+router.get('/edit', isLoggedIn,async function(req,res) {
 	//Failure renders edit if update is incorrect
 	var username = req.query.username;
-    Student.getByUserName(username, function(err,doc) {
-		if(err)
-			res.send("Some error occured");
-		else
-		{
-			if(doc)
-			res.render('students/edit', {title: 'Edit Student', student: doc});
+	const studentData =await student.findOne({username})
+		console.log(studentData)
+			if(studentData)
+			res.render('students/edit', {title: 'Edit Student', studentData});
 			else
 			res.redirect('/students/get_username_edit');
-		}
-	});
+		
+	
 });
 
-router.post('/update', isLoggedIn, function(req, res) {
+router.post('/update', isLoggedIn,async function(req, res) {
 	// TO DO: Ensure that the student and course exists
 	// TO DO: Add failure cases
 	var student = {
 	username: req.body.username,
-	password: req.body.password,
 	name: req.body.name,
 	rollno: req.body.rollno
 	};
+	// const passwo
 	var prevusername = req.body.prevusername;
-
-	Student.update(prevusername, student, function(err, doc) {
-			if(err)
+	const data =await student.findOneAndUpdate({prevusername},{...student})
+	
+			if(!data)
 				res.render('students/edit', { title: 'Edit Student', student: student});
 			else
 				res.redirect('../admin/home');
-		});
+		
 });
 
 router.get('/get_username_delete', isLoggedIn, function(req, res) {
@@ -102,130 +94,21 @@ router.get('/get_username_delete', isLoggedIn, function(req, res) {
 	res.render('students/get_username_delete', { title: "Get Username", username: default_username});
 });
 
-router.post('/delete', isLoggedIn, function(req, res) {
+router.post('/delete', isLoggedIn,async function(req, res) {
 	// TO DO: Ensure that the student and course exists
 	// TO DO: Add failure cases
 	var username = req.body.username;
-
-	Student.getByUserName(username, function(err,doc) {
-	if(err)
-		res.send("Some error occured");
-	else if(doc)
+	const studentData = await student.findOne({username})
+	
+	if(studentData)
 	{
-	Student.remove(username, function(err, doc) {
-		if(err)
-			res.send("Some error occured");
-		else
-			res.redirect('../admin/home');
-	})}
+		await student.findOneAndDelete({username})
+		res.redirect('../admin/home');
+	}
 	else
 		res.redirect('../students/get_username_delete');	
-	})
-});
+	});
 
-router.get('/register_form', isLoggedIn, function(req, res) {
-	res.render('students/register', { title: "Register", username: default_username,
-	courseid: default_courseid});
-});
-
-router.post('/register', isLoggedIn, function(req, res) {
-	var username = req.body.username;
-	var course_code = req.body.courseid;
-
-	Student.getByUserName(username, function(err,doc) 
-	{
-		if(err)
-			res.send("Some error occured");
-		else if(doc)
-		{
-			Course.getBycourseid(course_code, function(err,doc)
-			{
-				if(err)
-					res.send("Some error occured");
-				else if(doc)
-				{
-					Student.getBycourseid(username, course_code, function(err, doc) 
-					{
-						if(err)
-							res.send("Some error occured");
-						else if(doc)
-							{res.redirect('/students/register_form');}
-						else
-						{
-							Student.register(username, course_code, function(err, doc)
-							{
-								if(err)
-									res.send("Some error occured");
-								else if(doc)
-									res.redirect('/admin/home');
-
-							})	
-						}						
-					})
-				}
-				else
-					res.redirect('/students/register_form');
-					
-			})
-		}
-		else
-			res.redirect('/students/register_form');
-		
-	})
-});
-
-router.get('/deregister_form', isLoggedIn, function(req, res) {
-	res.render('students/deregister', { title: "Deregister", username: default_username,
-	courseid: default_courseid});
-});
-
-router.post('/deregister', isLoggedIn, function(req, res) {
-	// TO DO: Ensure that the student and course exists
-	// TO DO: Add failure cases
-	var username = req.body.username;
-	var course_code = req.body.courseid;
-
-	Student.getByUserName(username, function(err,doc) 
-	{
-		if(err)
-			res.send("Some error occured");
-		else if(doc)
-		{
-			Course.getBycourseid(course_code, function(err,doc)
-			{
-				if(err)
-					res.send("Some error occured");
-				else if(doc)
-				{
-					Student.getBycourseid(username, course_code, function(err, doc) 
-					{
-						if(err)
-							res.send("Some error occured");
-						else if(doc)
-						{
-							Student.deregister(username, course_code, function(err, doc)
-							{
-								if(err)
-									res.send("Some error occured");
-								else if(doc)
-									res.redirect('/admin/home');
-							})
-						}
-						else
-						{
-							res.redirect('/students/register_form');
-						}
-
-					})
-				}
-				else
-					res.redirect('/students/register_form');		
-			})
-		}
-		else
-			res.redirect('/students/register_form');
-	})
-});
 
 module.exports = router;
 
@@ -233,7 +116,7 @@ module.exports = router;
 function isLoggedIn(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='admin')
+    if (req.isAuthenticated()&&req.session.usertype=='admin')
         return next();
 
     // if they aren't redirect them to the home page
@@ -243,7 +126,7 @@ function isLoggedIn(req, res, next) {
 function isLoggedInAsStudent(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='student')
+    if (req.isAuthenticated()&&req.session.usertype=='student')
         return next();
 
     // if they aren't redirect them to the home page

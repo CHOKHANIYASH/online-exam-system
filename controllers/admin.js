@@ -7,8 +7,9 @@ router.get('/home', isLoggedIn, function(req, res) {
 });
 
 router.get('/logout', function(req, res) {
-        req.logout();
-        res.redirect('/');
+        req.logout(()=>{
+          res.redirect('/')
+        });
 });
 
 module.exports = router;
@@ -16,7 +17,7 @@ module.exports = router;
 function isLoggedIn(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='admin')
+    if (req.isAuthenticated()&&req.session.usertype=='admin')
         {return next();}
 
     // if they aren't redirect them to the home page

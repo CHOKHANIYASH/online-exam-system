@@ -1,7 +1,8 @@
 var express = require('express')
   , router = express.Router()
-  , Exam = require('../models/exam')
-  , Student = require('../models/student')
+  , {exam,response} = require('../models/exam')
+  , response = require('../models/exam')
+  , student = require('../models/student')
 
 router.get('/', isLoggedInAsStudent, function(req, res) {
 
@@ -9,56 +10,49 @@ router.get('/', isLoggedInAsStudent, function(req, res) {
 
 });
 
-router.post('/exam', isLoggedInAsStudent, function(req, res) {
-	var exam_code = req.body.exam_code;
+router.post('/exam', isLoggedInAsStudent,async function(req, res) {
+	var examCode = req.body.exam_code;
 	var username = req.body.username;
-    console.log(exam_code);
-    console.log(username);
-    Exam.getByExamCode(exam_code, function(err,doc1) 
-    {
-        if(err)
-            res.send("Some error occured");
-        else if(doc1)
+
+    const examData = await exam.findOne({examCode})
+   
+        if(examData)
         {
-            Student.getBycourseid(username, doc1.course_code, function(err,doc)
-            {
-                if(err)
-                    res.send("Some error occured");
-                else if(doc)
+
+            const studentData = student.findOne({username})
+                if(studentData)
                 {
-                    Exam.checkResponse(username, exam_code, function(err, doc) 
-                    {
-                        if(err)
-                            res.send("Some error occured");
-                        else if(doc)
-                            res.redirect('/take_exam');
-                        else
-                        {
-                            res.render('exams/take_exam', { title: 'Take Exam', exam_code: exam_code, username: username}); 
-                        }                       
-                    })
-                }
-                else
-                    res.redirect('/take_exam');
+                    //need to  add response check
+                    // Exam.checkResponse(username, exam_code, function(err, doc) 
+                    // {
+                    //     if(err)
+                    //         res.send("Some error occured");
+                    //     else if(doc)
+                    //         res.redirect('/take_exam');
+                    //     else
+                    //     {
+                            res.render('exams/take_exam', { title: 'Take Exam', exam_code: examCode, username: username}); 
+                //         }                       
+                //     })
+                // }
+                // else
+                //     res.redirect('/take_exam');
                     
-            })
+            }
         }
         else
             res.redirect('/take_exam');
-
-        
     })
-});
 
-router.get('/list', isLoggedInAsStudent, function(req, res) {
 
-    Exam.getByExamCode(req.query.exam_code, function(err,docs){
-        if(err)
-        res.send("some error occured");
-        else
-        res.json(docs);
+router.get('/list', isLoggedInAsStudent,async function(req, res) {
+   const examData = await exam.findOne({examCode:req.query.exam_code})
+    // Exam.getByExamCode(req.query.exam_code, function(err,docs){
+    //     if(err)
+    //     res.send("some error occured");
+    //     else
+        res.json(examData);
     });
-});
 
 
 router.post('/submit', isLoggedInAsStudent, function(req, res) {
@@ -147,7 +141,7 @@ module.exports = router;
 function isLoggedInAsStudent(req, res, next) {
 
     // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated()&&req.user.usertype=='student')
+    if (req.isAuthenticated()&&req.session.usertype=='student')
         return next();
 
     // if they aren't redirect them to the home page

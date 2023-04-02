@@ -8,27 +8,23 @@ router.get('/', function(req, res) {
         res.render('login', {title: "Admin Login", method: "authenticate_admin"});
     if(usertype == 'student')
         res.render('login', {title: "Student Login", method: "authenticate_student"});
-    if(usertype == 'faculty')
-        res.render('login', {title: "Faculty Login", method: "authenticate_faculty"});
 });
 
 router.post('/authenticate_admin', passport.authenticate('local-login-admin', {
-        successRedirect : '../admin/home', 
         failureRedirect : '/',
         failureFlash : true 
-}));
+}),(req,res)=>{
+        req.session.usertype = 'admin'
+        res.redirect('../admin/home')
+});
 
 router.post('/authenticate_student', passport.authenticate('local-login-student', {
-        successRedirect : '../students/home',
         failureRedirect : '/', 
         failureFlash : true 
-}));
-
-router.post('/authenticate_faculty', passport.authenticate('local-login-faculty', {
-        successRedirect : '../faculties/home', 
-        failureRedirect : '/', 
-        failureFlash : true 
-}));
+}),(req,res)=>{
+        req.session.usertype = 'student'
+        res.redirect('../students/home')
+});
 
 
 module.exports = router;
