@@ -7,6 +7,10 @@ h2 {
 	margin:0 0 .5em 0;
 }
 
+.form-button strong{
+	padding:100px;
+}
+
 a {
   color: #00B7FF;
 }

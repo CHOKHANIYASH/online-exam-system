@@ -41,8 +41,7 @@ router.post('/create', isLoggedIn,async function(req, res) {
 	const password=req.body.password
 	const name= req.body.name
 	const rollno= req.body.rollno
-	const data = await student.findOne({username})
-	console.log(data);
+	const data = await student.findOne({username})	
 	if(data)
 		res.redirect('/students/new');
 		else{
@@ -69,6 +68,11 @@ router.get('/edit', isLoggedIn,async function(req,res) {
 		
 	
 });
+
+router.get('/view',async(req,res)=>{
+	const students =await student.find({})
+	res.render('students/view',{students})
+})
 
 router.post('/update', isLoggedIn,async function(req, res) {
 	// TO DO: Ensure that the student and course exists

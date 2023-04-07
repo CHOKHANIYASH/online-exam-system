@@ -1,9 +1,9 @@
+// const axios = require('axios/dist/browser/axios.cjs'); // browser
+
 var questionData = [];
 
 // DOM Ready =============================================================
-$(document).ready(function() {
-
-    var time = { hours: "", minutes: ""};
+    var time = { hours: "10", minutes: "11"};
     var seconds = 0;
 
     // Populate the question table on intial load
@@ -36,63 +36,20 @@ $(document).ready(function() {
         }
      }, 1000);
 
-    // Question link click
-    $('#questionList table tbody').on('click', 'td a.linkshowuser', showUserInfo);
-
-});
-
 // Functions =============================================================
 
 // Fill Question List
-function fillQuestions(time) {
-
+async function fillQuestions(time) {
+    const code = exam_code;
     // Empty content string
     var tableContent = '';
-
-    // jQuery AJAX call for JSON
-    $.getJSON( '/take_exam/list', {exam_code: exam_code}, function( data ) {
-
-        // Question Content
-        questionData = data.question_list;
-
+    const data1= await fetch(`/take_exam/list/${code}`, {
+        method:'get'
+        })
+    const data = await data1.json()
         //Exam time data
-        time.hours = data.duration_hours;
-        time.minutes = data.duration_minutes;
+        time.hours = data.durationHours;
+        time.minutes = data.durationMinutes;
 
-        $qno=1;
-
-        // For each item in our JSON, add a question link and answer select box
-        $.each(data.question_list, function(){
-            tableContent += '<tr>';
-            tableContent += '<td><a href="#" class="linkshowuser" rel="' + $qno + '">' + $qno + '</a></td>';
-
-            tableContent +=  '<td><select name="response'+$qno+'"><option value=" "> </option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></td>';
-            tableContent += '</tr>';
-            $qno+=1;
-        });
-
-        // Inject the whole content string into our existing HTML table
-        $('#questionList table tbody').html(tableContent); 
-    });
 };
 
-// Show Question
-function showUserInfo(event) {
-
-    // Prevent Link from Firing
-    event.preventDefault();
-
-    // Retrieve question number from link rel attribute
-    var qno = $(this).attr('rel')-1;
-
-    // Get corresponding Question
-    var questionObject = questionData[qno];
-
-    //Populate Question Box
-    $('#question').text(questionObject.question);
-    $('#optionA').text(questionObject.optionA);
-    $('#optionB').text(questionObject.optionB);
-    $('#optionC').text(questionObject.optionC);
-    $('#optionD').text(questionObject.optionD);
-    $('#number').html('Question ' + (qno+1) + ' : '); 
-};

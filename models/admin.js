@@ -10,6 +10,7 @@ const passportLocalMongoose = require('passport-local-mongoose');
 var adminSchema = new mongoose.Schema({
   username:String,
   name:String,
+  institute:String,
 });
 adminSchema.plugin(passportLocalMongoose)
 const admin = mongoose.model('admin',adminSchema)

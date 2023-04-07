@@ -15,6 +15,9 @@ router.get('/new', isLoggedInAsAdmin, function(req, res) {
 	res.render('exams/new', { title: 'Make New Exam', exam: default_exam});
 });
 
+router.get('/view',(req,res)=>{
+	res.render('exams/view_exam_code_entry')
+})
 
 router.post('/create', isLoggedInAsAdmin,async function(req, res) {
 	var examData = {
@@ -36,14 +39,11 @@ router.post('/create', isLoggedInAsAdmin,async function(req, res) {
 		}
 	})
 
-router.get('/question_list', isLoggedInAsAdmin, function(req, res) {
-	const examData = exam.findOne({examCode:req.body.exam_code})
-    // Exam.getByExamCode(req.body.exam_code, function(err,docs){
-    //     if(err)
-    //     res.send("some error occured");
-    //     else
+router.post('/question_list', isLoggedInAsAdmin,async function(req, res) {
+	console.log(req.body.exam_code);
+	const examData =await exam.findOne({examCode:req.body.exam_code})
+	console.log(examData);
         res.render('exams/question_list', {exam: examData});
-    // });
 });
 
 router.get('/add_question', isLoggedInAsAdmin, function(req,res) {
@@ -54,7 +54,7 @@ router.get('/add_question', isLoggedInAsAdmin, function(req,res) {
 	  optionB: "option B",
 	  optionC: "option C",
 	  optionD: "option D",
-	  key: "Key"
+	  key: "Key",
 	};
 	res.render('exams/new_question', { title: 'Add New Question', question_full: default_question_full, 
 	exam_code: exam_code});
@@ -68,7 +68,8 @@ router.post('/add_question', isLoggedInAsAdmin, function(req,res) {
 	  optionB: "option B",
 	  optionC: "option C",
 	  optionD: "option D",
-	  key: "Key"
+	  key: "Key",
+	  marks:"Marks"
 	};
 	res.render('exams/new_question', { title: 'Add New Question', question_full: default_question_full, 
 	exam_code: exam_code});
@@ -85,7 +86,8 @@ router.post('/create_question', isLoggedInAsAdmin,async function(req, res) {
 	  optionB: req.body.optionB,
 	  optionC: req.body.optionC,
 	  optionD: req.body.optionD,
-	  key: req.body.key
+	  key: req.body.key,
+	  marks: req.body.marks,
 	};
     
     var examCode = req.body.exam_code;
@@ -95,11 +97,11 @@ router.post('/create_question', isLoggedInAsAdmin,async function(req, res) {
 		optionB: question_full.optionB,
 		optionC: question_full.optionC,
 		optionD: question_full.optionD,
-		key: question_full.key
+		key: question_full.key,
+		marks: question_full.marks,
 	   } ] } } },{
-			returnOriginal: true
+			new: true
 	  })
-	  console.log(await examData)
         	res.render('exams/question_list', {exam:examData});
 
 });
@@ -109,14 +111,14 @@ router.get('/submit', isLoggedInAsAdmin, function(req, res) {
    res.send("exam successfully created"); 
 });
 
-router.get('/list', isLoggedInAsAdmin,async function(req, res) {
-    const examData = await exam.findOne({examCode:req.query.exam_code})
-    // Exam.getByExamCode(req.query.exam_code, function(err,docs){
-    //     if(err)
-    //     res.send("some error occured");
-    //     else
-        res.json(examData);
-});
+// router.get('/list', isLoggedInAsAdmin,async function(req, res) {
+//     const examData = await exam.findOne({examCode:req.query.exam_code})
+//     // Exam.getByExamCode(req.query.exam_code, function(err,docs){
+//     //     if(err)
+//     //     res.send("some error occured");
+//     //     else
+//         res.json(examData);
+// });
 
 
 

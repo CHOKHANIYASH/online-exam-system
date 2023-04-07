@@ -1,0 +1,56 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title Add admin
+    // CSS
+    link(rel='stylesheet', href='/stylesheets/assets/bootstrap/css/font.css')
+    link(rel='stylesheet', href='/stylesheets/assets/bootstrap/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/assets/font-awesome/css/font-awesome.min.css')
+    link(rel='stylesheet', href='/stylesheets/assets/css/form-elements.css')
+    link(rel='stylesheet', href='/stylesheets/assets/css/style.css')
+  body
+    // Top content
+    .top-content
+      .inner-bg
+        .container
+          .row
+            .col-sm-8.col-sm-offset-2.text
+              h1
+                strong Add New Admin
+          .row
+            .col-sm-3
+              a.btn.btn-info(href='../', role='button') Go Back!
+            .col-sm-6.form-box
+              .form-top
+                .form-top-left
+                  h3 Add New Admin
+                  p Fill the form to add a new admin:
+              .form-bottom
+                form.login-form(role='form', action='register', method='post')
+                  .form-group
+                    label.sr-only(for='form-name') Name
+                    input#form-name.form-name.form-control(type='text', name='name', placeholder=admin.name)
+                  .form-group
+                    label.sr-only(for='form-username') Username
+                    input#form-username.form-username.form-control(type='text', name='username', placeholder=admin.username)
+                  .form-group
+                    label.sr-only(for='form-password') Password
+                    input#form-password.form-password.form-control(type='password', name='password', placeholder=admin.password)
+                  .form-group
+                    label.sr-only(for='form-password') Institute 
+                    input#form-password.form-password.form-control(type='text', name='institute', placeholder=admin.institute)
+                  .form-group
+                    label.sr-only(for='form-password') Special Code
+                    input#form-password.form-password.form-control(type='text', name='special_code', placeholder=admin.special_code)
+                  button.btn(type='submit') Add
+            
+    // Javascript
+    script(src='/stylesheets/assets/js/jquery-1.11.1.min.js')
+    script(src='/stylesheets/assets/bootstrap/js/bootstrap.min.js')
+    script(src='/stylesheets/assets/js/jquery.backstretch.min.js')
+    script(src='/stylesheets/assets/js/scripts.js')
+    //if lt IE 10
+      script(src='assets/js/placeholder.js')

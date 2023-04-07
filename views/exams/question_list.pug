@@ -2,7 +2,7 @@ doctype html
 html(lang='en')
   script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js')
   script(type='text/javascript')| var examCode =!{JSON.stringify(exam.examCode)};
-  script(src='/javascripts/display.js')
+  //- script(src='/javascripts/display.js')
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
@@ -20,10 +20,10 @@ html(lang='en')
       .inner-bg
         .container
           .row
+            .col-sm-3
+              a.btn.btn-info(href='/admin/home', role='button') Go Back!
             .col-sm-8.col-sm-offset-2.text
               h1
-           
-                
                 strong EXAM CODE: #{exam.examCode}
               
                 form.login-form(role='form', action='add_question', method='post')
@@ -37,13 +37,21 @@ html(lang='en')
               .form-top
                 .form-top-left
                   h4 
-                    ul
+                    ul(style="list-style-type:none;")
                       if exam.questionList 
-                        each val in exam.questionList 
+                        each val,index in exam.questionList 
                           li 
-                            ul
-                              li= val.question
-                              li= val.key
+                            ul(style="list-style-type:none;")
+                              li Question #{index+1}
+                                div #{val.question} 
+                                  div A:#{val.optionA}
+                                  div B:#{val.optionB}
+                                  div C:#{val.optionC}
+                                  div D:#{val.optionD}
+                                  div Key #{val.key}
+                                  if val.marks
+                                    div Marks #{val.marks}
+                              br
               .form-bottom
                 
     // Javascript

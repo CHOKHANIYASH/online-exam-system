@@ -3,8 +3,11 @@ var student = require('../models/student')
 var mongoose = require('mongoose');
 var responseSchema = new mongoose.Schema({
   username:String,
-  exam_code:String,
-  
+  examCode:String,
+  responses:[{
+    question:String,
+    response:String
+  }]
 })
 const response = mongoose.model('response',responseSchema)
 var examSchema = new mongoose.Schema({
@@ -18,7 +21,7 @@ var examSchema = new mongoose.Schema({
     optionC:String,
     optionD:String,
     key:String,
-    // response:String
+    marks:Number,
 }]
 
 });

@@ -1,10 +1,11 @@
+
 doctype html
 html(lang='en')
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
     meta(name='viewport', content='width=device-width, initial-scale=1')
-    title Admin Home
+    title Get exam_code to view performance
     // CSS
     link(rel='stylesheet', href='/stylesheets/assets/bootstrap/css/font.css')
     link(rel='stylesheet', href='/stylesheets/assets/bootstrap/css/bootstrap.min.css')
@@ -19,30 +20,25 @@ html(lang='en')
           .row
             .col-sm-8.col-sm-offset-2.text
               h1
-                strong Hello Admin
-                a.btn.btn-info(href='/admin/logout', role='button',style="margin:10px;") Logout!
+                strong View Exam
           .row
-            .col-sm-4.form-box
+            .col-sm-3
+              a.btn.btn-info(href='/admin/home', role='button') Go Back!
+            .col-sm-6.form-box
               .form-top
                 .form-top-left
-                  h3 Student
-                  <br>
-                .form-group
-                    a.btn.btn-info(href='/students/new', role='button') Add Student
-                .form-group
-                    a.btn.btn-info(href='/students/get_username_delete', role='button') Delete Student
-                .form-group
-                    a.btn.btn-info(href='/students/view', role='button') View Students
-                 
-            .col-sm-4.form-box
-              .form-top
-                .form-top-left
-                  h3 Exam
-                  <br>
-                .form-group
-                    a.btn.btn-info(href='/make_exam/new', role='button') Make Exam
-                .form-group
-                    a.btn.btn-info(href='/make_exam/view', role='button') View Exam
+                  p Fill the exam_code:
+              .form-bottom
+                form.login-form(role='form', action='question_list', method='post')
+                  .form-group
+                    label.sr-only(for='form-exam_code') exam_code
+                    input#form-exam_code.form-exam_code.form-control(type='text', name='exam_code', value=exam_code)
+                  .form-group
+                    label.sr-only(for='form-username') username
+                    input#form-username.form-username.form-control(type='hidden', name='username', value=username)
+                  button.btn(type='submit') Submit
+            .col-sm-3
+              a.btn.btn-info(href='/admin/logout', role='button') Logout!
     // Javascript
     script(src='/stylesheets/assets/js/jquery-1.11.1.min.js')
     script(src='/stylesheets/assets/bootstrap/js/bootstrap.min.js')
@@ -50,3 +46,7 @@ html(lang='en')
     script(src='/stylesheets/assets/js/scripts.js')
     //if lt IE 10
       script(src='assets/js/placeholder.js')
+
+
+        
+

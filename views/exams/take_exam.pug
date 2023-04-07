@@ -3,7 +3,8 @@ html(lang='en')
   script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js')
   script(src='/javascripts/question_list.js')
   script(type='text/javascript')| var exam_code =!{JSON.stringify(exam_code)};
-  script(src='/javascripts/question_list.js')
+  //- script(src="https://unpkg.com/axios/dist/axios.min.js")
+  
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
@@ -32,27 +33,24 @@ html(lang='en')
                 .form-top-left
                   h3 Questions
                   <br>
-              .form-bottom
-                p
-                  
-                  h4#number
-                  span#question
-                  br
-                  strong A:               
-                  span#optionA
-                  
-
-                  strong B:                
-                  span#optionB(align='right')
-                  br
-
-                  strong C:             
-                  span#optionC
-                  
-
-                  strong D:               
-                  span#optionD
-
+                  ul 
+                    if exam.questionList  
+                      each val,index in exam.questionList 
+                        li.form-bottom
+                                  p
+                                  h3=index+1
+                                  
+                                  h4#number
+                                    span#question
+                                      strong=val.question
+                                    br
+                                    span#optionA='A '+val.optionA
+                                    br
+                                    span#optionB='B '+val.optionB
+                                    br
+                                    span#optionC='C '+val.optionC
+                                    br
+                                    span#optionD='D '+val.optionD
             .col-sm-4.form-box
               .form-top
                 .form-top-left
@@ -65,7 +63,20 @@ html(lang='en')
                       thead
                         th Question No.
                         th Choice
-                      tbody
+                      tbody#tbody
+                          if exam.questionList 
+                            each val,i in exam.questionList 
+                                 tr
+                                  td 
+                                    a(href="#" class="linkshowuser" rel=`response${i+1}`)=i+1
+                                  td
+                                    select(name=`${i+1}`)
+                                      option() 
+                                      option() A
+                                      option() B
+                                      option() C
+                                      option() D
+
                   br
                   br
                   .form-group
@@ -84,5 +95,7 @@ html(lang='en')
     script(src='/stylesheets/assets/bootstrap/js/bootstrap.min.js')
     script(src='/stylesheets/assets/js/jquery.backstretch.min.js')
     script(src='/stylesheets/assets/js/scripts.js')
+    script(src='/javascripts/question_list.js')
+
     //if lt IE 10
       script(src='assets/js/placeholder.js')
