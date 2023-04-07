@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+  require('dotenv').config();
+}
+
 let express = require('express');
 let mongoose = require('mongoose');
 let path = require('path');
@@ -9,16 +13,14 @@ let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 let session = require('express-session');
+const dbUrl = process.env.dbUrl
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/examDB').then(()=>{
+mongoose.connect(dbUrl).then(()=>{
   console.log('Database connected');
 })
 require('./config/passport')(passport);
-// import express from 'express'
-// import mongoose from 'mongoose'
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 let app = express();
 app.use(logger('dev'));
 app.use(cookieParser());
@@ -29,10 +31,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
 //session setup
 const store = new MongoStore({
-  mongoUrl:'mongodb://127.0.0.1:27017/examDB',
+  mongoUrl:dbUrl,
   secret:"gergerrfewwe",
   touchAfter:24*3600,
 })
@@ -47,8 +48,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-// let monk = require('monk');
-// let db = monk('localhost:2701/examdb');
 
 
 let index = require('./controllers/index');
