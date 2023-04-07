@@ -41,6 +41,11 @@ app.use(session({
   resave:false,
   saveUninitialized: false,
   secret: 'my_app_secret',
+  cookie:{
+    httpOnly:true,
+    expires: Date.now() + 1000*60*60*24*7,
+    maxAge:1000*60*60*24*7
+},
   store}));
 
 
