@@ -13,6 +13,10 @@ html(lang='en')
     link(rel='stylesheet', href='/stylesheets/assets/css/form-elements.css')
     link(rel='stylesheet', href='/stylesheets/assets/css/style.css')
   body
+    if messages.success && messages.success.length
+      div.alert.alert-success=messages.success
+    if messages.error && messages.error.length
+      div.alert.alert-danger=error
     // Top content
     .top-content
       .inner-bg

@@ -13,6 +13,10 @@ html(lang='en')
     link(rel='stylesheet', href='/stylesheets/assets/css/form-elements.css')
     link(rel='stylesheet', href='/stylesheets/assets/css/style.css')
   body
+    if messages.success && messages.success.length
+      div.alert.alert-success=messages.success
+    if messages.error && messages.error.length
+      div.alert.alert-danger=messages.error
     // Top content
     .top-content
       .inner-bg
@@ -34,7 +38,7 @@ html(lang='en')
                   .form-group
                     label.sr-only(for='form-username') Username
                     input#form-username.form-username.form-control(type='text', name='username', placeholder='Username...')
-                  button.btn(type='submit') Details
+                  button.btn(type='submit') Delete
             .col-sm-3
               a.btn.btn-info(href='../admin/logout', role='button') Logout!
     // Javascript
